@@ -83,7 +83,7 @@ if __name__ == "__main__":
     dx = 8.0        # m
     nt, nx = int(2*fs), int(800/dx)
     c = 1500 # m/s
-    cs_min, cs_max, cp_min, cp_max = 1400, 5000, 1450, 5500
+    cs_min, cs_max, cp_min, cp_max = 1400, 1550, 1450, 1600
 
     # Step 1: Make impulse response for array
     ir = make_impulse_response(nt, nx, fs, dx, c)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     tx = convolve_signal_with_ir(signal, ir)
     tx = tx[:nt, :]  # truncate to original length
 
-    tx += .001*np.random.randn(tx.shape[0], tx.shape[1]) # add noise
+    tx += .1*np.random.randn(tx.shape[0], tx.shape[1]) # add noise
     
     # Step 4: Create masks
     # def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, display_filter=False):
