@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal.windows import tukey
-from scipy.signal import fftconvolve
+from scipy.signal import fftconvolve, convolve, convolve2d
 from scipy.ndimage import distance_transform_edt
 from scipy.ndimage import gaussian_filter
 import das4whales as dw
@@ -49,7 +49,29 @@ def make_velocity_mask(nt, nx, fs, dx, vel_min, vel_max):
     phase_vel = np.divide(F, K, out=np.zeros_like(F), where=K!=0)
     return (np.abs(phase_vel) >= vel_min) & (np.abs(phase_vel) <= vel_max)
 
-def smooth_mask(mask_binary, smooth_px=6):
+def smooth_mask(mask_binary,  winSize = [5,5]):
+    """
+    Smooth by convolving each row with a 2-D rectangular window
+    winSize = [nf, nk] size of window in each dimension
+    """
+
+    nk = mask_binary.shape[0]
+    ker = np.ones(winSize)
+    mask_sm = np.zeros_like(mask_binary)
+    mask_sm = convolve2d(mask_binary, ker, 'same')
+    # for i in np.arange(nk):
+    #     wdth = int(sum(mask_binary[i, :])/2)
+    #     print(wdth)
+    #     if wdth<2:
+    #         mask_sm[i, :] = mask_binary[i, :]*.5
+    #     else:
+    #         win = tukey(int(wdth), alpha=alpha)
+    #         mask_sm[i, :] = convolve(mask_binary[i, :], win, 'same')
+    return mask_sm
+
+        
+
+def smooth_mask_gauss(mask_binary, smooth_px=3):
     """
     Smooth (apodize) a binary mask using a localized Gaussian blur,
     but preserve 1 and 0 far from the edges.
@@ -83,7 +105,7 @@ if __name__ == "__main__":
     dx = 8.0        # m
     nt, nx = int(2*fs), int(800/dx)
     c = 1500 # m/s
-    cs_min, cs_max, cp_min, cp_max = 1400, 1550, 1450, 1600
+    cs_min, cp_min, cp_max, cs_max = 1400, 1450, 3400, 3500
 
     # Step 1: Make impulse response for array
     ir = make_impulse_response(nt, nx, fs, dx, c)
