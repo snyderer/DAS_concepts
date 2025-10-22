@@ -34,11 +34,18 @@ mask_binary = dw.dsp.fk_filter_design(tx.shape, [0, tx.shape[0], 1], dx, fs,
 
 mask_smooth = tap.smooth_mask(mask_binary, [5,5])
 
-# hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., cp_max=3400, cs_max=3500, fmin=15., fmax=25., display_filter=False)
-hyb_filt_sparse = dw.dsp.hybrid_ninf_filter_design(tx.shape, [0, nx-1, 1], dx, fs,
-                                               cs_min=cs_min, cp_min=cp_min, 
-                                               cp_max=cp_max, cs_max=cs_max,
-                                               fmin=f0-30, fmax=f0+30., display_filter=False)
+# hyb_filt_sparse = dw.dsp.hybrid_ninf_filter_design(tx.shape, [0, nx-1, 1], dx, fs,
+#                                                cs_min=cs_min, cp_min=cp_min, 
+#                                                cp_max=cp_max, cs_max=cs_max,
+#                                                fmin=f0-30, fmax=f0+30., display_filter=False)
+fk_params = {}
+fk_params['fmin'] = f0-30
+fk_params['fmax'] = f0+30
+fk_params['c_min'] = cs_min
+fk_params['c_max'] = cp_max
+
+hyb_filt_sparse = dw.dsp.hybrid_ninf_gs_filter_design(tx.shape, [0, nx-1, 1], dx, fs, 
+                                                      fk_params, display_filter=False)
 
 # convert sparse matrix to regular matrix
 hyb_filt = hyb_filt_sparse.todense()
